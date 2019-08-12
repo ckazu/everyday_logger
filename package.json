@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ckazu/everyday_logger/issues"
   },
-  "homepage": "https://github.com/ckazu/everyday_logger#readme"
+  "homepage": "https://github.com/ckazu/everyday_logger#readme",
+  "dependencies": {
+    "@google-cloud/bigquery": "^4.1.8"
+  }
 }

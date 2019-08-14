@@ -1,0 +1,60 @@
+#!/bin/bash
+set -eu
+
+if [[ -n ${EL_ENDPOINT:-} ]]; then ENDPOINT=$EL_ENDPOINT; else echo '$EL_ENDPOINT is required'; exit 1; fi
+if [[ -n ${EL_TOPIC:-} ]]; then TOPIC=\"$EL_TOPIC\"; else TOPIC=null; fi
+TIME=`date +%s000`
+LABEL=null
+VALUE=null
+PAYLOAD=null
+
+usage() {
+    echo "USAGE: $0 -t arg [--label arg] [--value arg] [--time arg] [--unixtime arg] [--payload arg]"
+    echo "  -t, --topic    [必須] BQ のテーブル名"
+    echo "  -l, --label    文字列"
+    echo "  -v, --value    数値(BQ の NUMERIC 型)"
+    echo "  -p, --payload  JSON オブジェクト"
+    echo "      --time     時刻(moment.js の parse できる文字列)"
+    echo "      --unixtime 時刻(Unix Timestamp milliseconds)"
+}
+
+for OPT in $@
+do
+    case $OPT in
+        '-h' | '--help')
+            usage
+            exit 1
+            ;;
+        '-t' | '--topic')
+            TOPIC=\"$2\"
+            shift 2
+            ;;
+        '-l' | '--label')
+            LABEL=\"$2\"
+            shift 2
+            ;;
+        '-v' | '--value')
+            VALUE=\"$2\"
+            shift 2
+            ;;
+        '-p' | '--payload')
+            PAYLOAD=$2
+            shift 2
+            ;;
+        '--time')
+            TIME=\"$2\"
+            shift 2
+            ;;
+        '--unixtime')
+            TIME=$2
+            shift 2
+            ;;
+    esac
+done
+
+curl \
+    -X POST \
+    -H 'Content-type: application/json' \
+    $ENDPOINT \
+    --data \
+    "{\"topic\": $TOPIC, \"payload\": $PAYLOAD, \"value\": $VALUE, \"label\": $LABEL, \"time\": $TIME}"
